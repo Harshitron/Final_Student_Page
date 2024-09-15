@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 const ApplyNow = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ 
     // Personal Details
     name: '',
     fatherName: '',
