@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import React from 'react';
 
 export default function Carousel() {
   const [activeSlide, setActiveSlide] = useState(0)

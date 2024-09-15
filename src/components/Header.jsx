@@ -1,3 +1,4 @@
+import React from 'react';
 export default function Header({ changeFontSize }) {
     return (
       <header className="bg-blue-700 text-white">

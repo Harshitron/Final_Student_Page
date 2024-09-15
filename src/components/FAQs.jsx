@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-
+import React from 'react';
 export default function FAQs() {
   const [openIndex, setOpenIndex] = useState(null)
 

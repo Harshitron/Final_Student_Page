@@ -1,6 +1,6 @@
 import { Check, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
-
+import React from 'react';
 export default function Eligibility() {
   const eligibilityCriteria = [
     "Must be a domicile of Jammu & Kashmir or Ladakh",

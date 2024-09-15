@@ -1,5 +1,5 @@
 import { Book, Users, Award, Briefcase } from 'lucide-react'
-
+import React from 'react';
 export default function AboutUs() {
   return (
     <div className="bg-white min-h-screen">

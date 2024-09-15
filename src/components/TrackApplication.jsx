@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-
+import React from 'react';
 export default function TrackApplication() {
   // Assuming `hasApplied` can be used to determine if the user has applied (in the future).
   // For now, we'll keep it hardcoded to `false`.

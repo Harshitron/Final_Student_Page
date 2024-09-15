@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Bell, AlertCircle } from 'lucide-react'
+import React from 'react';
 
 export default function NotificationSection() {
   const [activeTab, setActiveTab] = useState('general')

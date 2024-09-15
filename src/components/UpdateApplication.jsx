@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
-
+import React from 'react';
 export default function UpdateApplication() {
   const [isPermitted, setIsPermitted] = useState(false)
 
