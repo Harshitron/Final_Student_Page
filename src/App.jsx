@@ -16,6 +16,8 @@ import UpdateApplication from './components/UpdateApplication.jsx'
 
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import SignInForm from './components/SignInForm.jsx'
+import RegistrationForm from './components/RegistrationForm.jsx'
 
 export default function App() {
   const [fontSize, setFontSize] = useState('base')
@@ -64,6 +66,9 @@ export default function App() {
             <Route path="/track-application" element={<TrackApplication />} />
             <Route path="/apply" element={<ApplyNow />} />
             <Route path="/update-application" element={<UpdateApplication />} /> 
+            <Route path="/sign-in" element={<SignInForm />} /> 
+            <Route path="/sign-up" element={<RegistrationForm />} /> 
+
 
           </Routes>
         </main>
