@@ -13,7 +13,7 @@ export default function Navbar({ canUpdateApplication }) {
           {/* Logo Section */}
           <div className="flex items-center space-x-4">
             <img src={Logo} alt="PMSSS Logo" className="h-10" />
-            <h1 className="text-xl font-bold">PMSSS Scholarship</h1>
+            <Link to="/"><h1 className="text-xl font-bold">PMSSS Scholarship</h1></Link>
           </div>
 
           {/* Desktop Links (Visible on screens ≥ 1200px) */}
@@ -24,6 +24,7 @@ export default function Navbar({ canUpdateApplication }) {
             <Link to="/track-application" className="text-gray-600 hover:text-blue-700">Track Application</Link>
             <Link to="/faqs" className="text-gray-600 hover:text-blue-700">FAQs</Link>
             <Link to="/apply" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Apply Now</Link>
+            <Link to="/manage-documents" className="text-gray-600 hover:text-blue-700">Manage Submitted Documents</Link>
             {canUpdateApplication && (
               <Link to="/update-application" className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Update Application</Link>
             )}
@@ -53,6 +54,7 @@ export default function Navbar({ canUpdateApplication }) {
             <Link to="/track-application" className="block text-gray-600 hover:text-blue-700">Track Application</Link>
             <Link to="/faqs" className="block text-gray-600 hover:text-blue-700">FAQs</Link>
             <Link to="/apply" className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-center">Apply Now</Link>
+            <Link to="/manage-documents" className="block text-gray-600 hover:text-blue-700">Manage Submitted Documents</Link>
             {canUpdateApplication && (
               <Link to="/update-application" className="block bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 text-center">Update Application</Link>
             )}

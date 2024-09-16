@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { toast, Toaster } from 'react-hot-toast';
+import { X } from 'lucide-react';
+
 const ApplyNow = () => {
-  const [formData, setFormData] = useState({ 
+  const [formData, setFormData] = useState({
     // Personal Details
     name: '',
     fatherName: '',
@@ -54,7 +57,10 @@ const ApplyNow = () => {
 
   const handleFileUpload = (e) => {
     const { name, files } = e.target;
-    setFormData({ ...formData, [name]: files[0] });
+    if (files[0]) {
+      setFormData({ ...formData, [name]: files[0] });
+      toast.success(`${name} uploaded successfully`);
+    }
   };
 
   const handleAcademicRecordChange = (index, field, value) => {
@@ -70,27 +76,46 @@ const ApplyNow = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const removeAcademicRecord = (index) => {
+    if (formData.academicRecords.length > 1) {
+      const updatedRecords = formData.academicRecords.filter((_, i) => i !== index);
+      setFormData({ ...formData, academicRecords: updatedRecords });
+      toast.success('Exam record removed');
+    } else {
+      toast.error('At least one exam record is required');
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log(formData);
-    // Implement form submission logic
+    try {
+      // Simulating form submission
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log(formData);
+      toast.success('Application submitted successfully!');
+    } catch (error) {
+      toast.error('An error occurred. Please try again.');
+    }
   };
 
   const fetchFromDigilocker = () => {
     // Implement Digilocker fetch logic
-    console.log('Fetching from Digilocker...');
+    toast.info('Fetching from Digilocker...');
   };
 
+  const inputClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm bg-white shadow-sm";
+  const selectClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm bg-white shadow-sm";
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Apply Now - PMSSS Scholarship</h1>
+    <div className="container mx-auto px-4 py-8 bg-gray-50">
+      <Toaster position="top-right" />
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Apply Now - PMSSS Scholarship</h1>
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Personal Details Section */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Personal Details</h2>
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Personal Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name (As per Aadhar Card)</label>
               <input
                 type="text"
@@ -99,11 +124,11 @@ const ApplyNow = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
-              <label htmlFor="fatherName" className="block text-sm font-medium text-gray-700">Fathers Name</label>
+            <div className="space-y-2">
+              <label htmlFor="fatherName" className="block text-sm font-medium text-gray-700">Father's Name</label>
               <input
                 type="text"
                 id="fatherName"
@@ -111,11 +136,11 @@ const ApplyNow = () => {
                 value={formData.fatherName}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
-              <label htmlFor="motherName" className="block text-sm font-medium text-gray-700">Mothers Name</label>
+            <div className="space-y-2">
+              <label htmlFor="motherName" className="block text-sm font-medium text-gray-700">Mother's Name</label>
               <input
                 type="text"
                 id="motherName"
@@ -123,10 +148,10 @@ const ApplyNow = () => {
                 value={formData.motherName}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="dob" className="block text-sm font-medium text-gray-700">Date of Birth</label>
               <input
                 type="date"
@@ -135,10 +160,10 @@ const ApplyNow = () => {
                 value={formData.dob}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender</label>
               <select
                 id="gender"
@@ -146,7 +171,7 @@ const ApplyNow = () => {
                 value={formData.gender}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={selectClassName}
               >
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
@@ -154,7 +179,7 @@ const ApplyNow = () => {
                 <option value="other">Other</option>
               </select>
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
               <select
                 id="category"
@@ -162,7 +187,7 @@ const ApplyNow = () => {
                 value={formData.category}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={selectClassName}
               >
                 <option value="">Select Category</option>
                 <option value="SC">SC</option>
@@ -171,7 +196,7 @@ const ApplyNow = () => {
                 <option value="General">General</option>
               </select>
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email ID (Optional)</label>
               <input
                 type="email"
@@ -179,10 +204,10 @@ const ApplyNow = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="familyIncome" className="block text-sm font-medium text-gray-700">Total Family Income (Annually)</label>
               <input
                 type="number"
@@ -192,18 +217,18 @@ const ApplyNow = () => {
                 onChange={handleInputChange}
                 required
                 max="800000"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
-              <p className="text-sm text-gray-500 mt-1">Must be less than 8 Lakhs</p>
+              <p className="text-sm text-gray-500">Must be less than 8 Lakhs</p>
             </div>
           </div>
-        </section>
+        </div>
 
         {/* College Details Section */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">College Details</h2>
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">College Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <label htmlFor="collegeName" className="block text-sm font-medium text-gray-700">Name of College</label>
               <input
                 type="text"
@@ -212,22 +237,21 @@ const ApplyNow = () => {
                 value={formData.collegeName}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="collegeAddress" className="block text-sm font-medium text-gray-700">College Address</label>
-              <input
-                type="text"
+              <textarea
                 id="collegeAddress"
                 name="collegeAddress"
                 value={formData.collegeAddress}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-              />
+                className={inputClassName}
+              ></textarea>
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="collegeEmail" className="block text-sm font-medium text-gray-700">Official College Email ID</label>
               <input
                 type="email"
@@ -236,10 +260,10 @@ const ApplyNow = () => {
                 value={formData.collegeEmail}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="enrollmentNumber" className="block text-sm font-medium text-gray-700">Enrollment Number of Student</label>
               <input
                 type="text"
@@ -248,10 +272,10 @@ const ApplyNow = () => {
                 value={formData.enrollmentNumber}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="institutionCode" className="block text-sm font-medium text-gray-700">Institution Code</label>
               <input
                 type="text"
@@ -260,13 +284,13 @@ const ApplyNow = () => {
                 value={formData.institutionCode}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
           </div>
-          <h3 className="text-xl font-semibold mt-4 mb-2">College Bank Details</h3>
+          <h3 className="text-xl font-semibold mt-4 mb-2 text-gray-700">College Bank Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <label htmlFor="collegeBankName" className="block text-sm font-medium text-gray-700">College Bank Name</label>
               <input
                 type="text"
@@ -275,10 +299,10 @@ const ApplyNow = () => {
                 value={formData.collegeBankName}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="collegeAccountNumber" className="block text-sm font-medium text-gray-700">Account Number</label>
               <input
                 type="text"
@@ -287,10 +311,10 @@ const ApplyNow = () => {
                 value={formData.collegeAccountNumber}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="collegeIFSC" className="block text-sm font-medium text-gray-700">IFSC Code</label>
               <input
                 type="text"
@@ -299,25 +323,24 @@ const ApplyNow = () => {
                 value={formData.collegeIFSC}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="collegeBankAddress" className="block text-sm font-medium text-gray-700">Bank Address</label>
-              <input
-                type="text"
+              <textarea
                 id="collegeBankAddress"
                 name="collegeBankAddress"
                 value={formData.collegeBankAddress}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-              />
+                className={inputClassName}
+              ></textarea>
             </div>
           </div>
-          <h3 className="text-xl font-semibold mt-4 mb-2">Course Details</h3>
+          <h3 className="text-xl font-semibold mt-4 mb-2 text-gray-700">Course Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <label htmlFor="courseDuration" className="block text-sm font-medium text-gray-700">Duration of Course</label>
               <input
                 type="text"
@@ -326,10 +349,10 @@ const ApplyNow = () => {
                 value={formData.courseDuration}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="courseName" className="block text-sm font-medium text-gray-700">Course Name</label>
               <input
                 type="text"
@@ -338,13 +361,11 @@ const ApplyNow = () => {
                 value={formData.courseName}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
-              <label htmlFor="feesPerYear"
-
- className="block text-sm font-medium text-gray-700">Fees per Year/Semester</label>
+            <div className="space-y-2">
+              <label htmlFor="feesPerYear" className="block text-sm font-medium text-gray-700">Fees per Year/Semester</label>
               <input
                 type="number"
                 id="feesPerYear"
@@ -352,10 +373,10 @@ const ApplyNow = () => {
                 value={formData.feesPerYear}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="totalFees" className="block text-sm font-medium text-gray-700">Total Fees</label>
               <input
                 type="number"
@@ -364,20 +385,28 @@ const ApplyNow = () => {
                 value={formData.totalFees}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
           </div>
-        </section>
+        </div>
 
         {/* Academic Details Section */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Academic Details</h2>
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Academic Details</h2>
           {formData.academicRecords.map((record, index) => (
-            <div key={index} className="mb-4 p-4 border rounded-md">
-              <h3 className="text-lg font-semibold mb-2">Exam {index + 1}</h3>
+            <div key={index} className="mb-4 p-4 border border-gray-200 rounded-md relative">
+              <h3 className="text-lg font-semibold mb-2 text-gray-600">Exam {index + 1}</h3>
+              <button
+                type="button"
+                onClick={() => removeAcademicRecord(index)}
+                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                aria-label={`Remove Exam ${index + 1}`}
+              >
+                <X size={20} />
+              </button>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <label htmlFor={`exam-${index}`} className="block text-sm font-medium text-gray-700">Exam Passed</label>
                   <input
                     type="text"
@@ -385,10 +414,10 @@ const ApplyNow = () => {
                     value={record.exam}
                     onChange={(e) => handleAcademicRecordChange(index, 'exam', e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className={inputClassName}
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <label htmlFor={`board-${index}`} className="block text-sm font-medium text-gray-700">Educational Board/University</label>
                   <input
                     type="text"
@@ -396,10 +425,10 @@ const ApplyNow = () => {
                     value={record.board}
                     onChange={(e) => handleAcademicRecordChange(index, 'board', e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className={inputClassName}
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <label htmlFor={`yearOfPass-${index}`} className="block text-sm font-medium text-gray-700">Passing Year</label>
                   <input
                     type="number"
@@ -407,10 +436,10 @@ const ApplyNow = () => {
                     value={record.yearOfPass}
                     onChange={(e) => handleAcademicRecordChange(index, 'yearOfPass', e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className={inputClassName}
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <label htmlFor={`totalMarks-${index}`} className="block text-sm font-medium text-gray-700">Total Marks</label>
                   <input
                     type="number"
@@ -418,10 +447,10 @@ const ApplyNow = () => {
                     value={record.totalMarks}
                     onChange={(e) => handleAcademicRecordChange(index, 'totalMarks', e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className={inputClassName}
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <label htmlFor={`marksObtained-${index}`} className="block text-sm font-medium text-gray-700">Marks Obtained</label>
                   <input
                     type="number"
@@ -429,7 +458,7 @@ const ApplyNow = () => {
                     value={record.marksObtained}
                     onChange={(e) => handleAcademicRecordChange(index, 'marksObtained', e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    className={inputClassName}
                   />
                 </div>
               </div>
@@ -442,25 +471,24 @@ const ApplyNow = () => {
           >
             Add Another Exam
           </button>
-        </section>
+        </div>
 
         {/* Address Details Section */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Address Details</h2>
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Address Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
-              <input
-                type="text"
+              <textarea
                 id="address"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-              />
+                className={inputClassName}
+              ></textarea>
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
               <input
                 type="text"
@@ -469,10 +497,10 @@ const ApplyNow = () => {
                 value={formData.city}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
               <input
                 type="text"
@@ -481,10 +509,10 @@ const ApplyNow = () => {
                 value={formData.state}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label htmlFor="pincode" className="block text-sm font-medium text-gray-700">Pincode</label>
               <input
                 type="text"
@@ -494,15 +522,15 @@ const ApplyNow = () => {
                 onChange={handleInputChange}
                 required
                 pattern="[0-9]{6}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                className={inputClassName}
               />
             </div>
           </div>
-        </section>
+        </div>
 
         {/* Documents Upload Section */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Documents to Upload</h2>
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Documents to Upload</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { name: 'photograph', label: 'Photograph' },
@@ -515,7 +543,7 @@ const ApplyNow = () => {
               { name: 'domicileCertificate', label: 'Domicile Certificate' },
               { name: 'disabilityCertificate', label: 'Disability Certificate' },
             ].map((doc) => (
-              <div key={doc.name}>
+              <div key={doc.name} className="space-y-2">
                 <label htmlFor={doc.name} className="block text-sm font-medium text-gray-700">{doc.label}</label>
                 <input
                   type="file"
@@ -531,12 +559,12 @@ const ApplyNow = () => {
                     hover:file:bg-blue-100"
                 />
                 {formData[doc.name] && (
-                  <p className="mt-1 text-sm text-green-600">File uploaded successfully</p>
+                  <p className="text-sm text-green-600">File uploaded successfully</p>
                 )}
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
         <div className="flex justify-between items-center mt-8">
           <button
