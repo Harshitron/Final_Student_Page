@@ -1,42 +1,58 @@
-import React, { useState } from 'react';
-import { toast, Toaster } from 'react-hot-toast';
-import { X } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import toast from 'react-hot-toast';
+import { X } from "lucide-react";
+import axios from "axios";
+import { apiClient } from "../lib/api-client";
+import { SUBMIT_FORM_ROUTE } from "../utils/constants";
+import { useNavigate } from "react-router-dom";
+
+
 
 const ApplyNow = () => {
+
+
   const [formData, setFormData] = useState({
     // Personal Details
-    name: '',
-    fatherName: '',
-    motherName: '',
-    dob: '',
-    gender: '',
-    category: '',
-    email: '',
-    familyIncome: '',
+    name: "",
+    fatherName: "",
+    motherName: "",
+    dob: "",
+    gender: "",
+    category: "",
+    email: "",
+    familyIncome: "",
 
     // College Details
-    collegeName: '',
-    collegeAddress: '',
-    collegeEmail: '',
-    enrollmentNumber: '',
-    institutionCode: '',
-    collegeBankName: '',
-    collegeAccountNumber: '',
-    collegeIFSC: '',
-    collegeBankAddress: '',
-    courseDuration: '',
-    courseName: '',
-    feesPerYear: '',
-    totalFees: '',
+    collegeName: "",
+    collegeAddress: "",
+    collegeEmail: "",
+    enrollmentNumber: "",
+    institutionCode: "",
+    collegeBankName: "",
+    collegeAccountNumber: "",
+    collegeIFSC: "",
+    collegeBankAddress: "",
+    courseDuration: "",
+    courseName: "",
+    feesPerYear: "",
+    totalFees: "",
 
     // Address Details
-    address: '',
-    city: '',
-    state: '',
-    pincode: '',
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
 
     // Academic Details
-    academicRecords: [{ exam: '', board: '', yearOfPass: '', totalMarks: '', marksObtained: '' }],
+    academicRecords: [
+      {
+        exam: "",
+        board: "",
+        yearOfPass: "",
+        totalMarks: "",
+        marksObtained: "",
+      },
+    ],
 
     // Documents
     photograph: null,
@@ -49,6 +65,15 @@ const ApplyNow = () => {
     domicileCertificate: null,
     disabilityCertificate: null,
   });
+  
+const navigate = useNavigate()
+
+  const [preview, setPreview] = useState(null);
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData])
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -60,7 +85,56 @@ const ApplyNow = () => {
     if (files[0]) {
       setFormData({ ...formData, [name]: files[0] });
       toast.success(`${name} uploaded successfully`);
+  
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview({
+          name: name,
+          url: reader.result
+        });
+      };
+      reader.readAsDataURL(files[0]);
     }
+  };
+  
+
+
+  const DocumentPreview = ({ preview, onClose }) => {
+    if (!preview) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/10 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">{preview.name} Preview</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          {preview.url.startsWith("data:image") ? (
+            <img
+              src={preview.url}
+              alt={preview.name}
+              className="max-h-96 mx-auto"
+            />
+          ) : (
+            <iframe
+              src={preview.url}
+              className="w-full h-96"
+              title={preview.name}
+            ></iframe>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const closePreview = () => {
+    setPreview(null);
   };
 
   const handleAcademicRecordChange = (index, field, value) => {
@@ -72,51 +146,100 @@ const ApplyNow = () => {
   const addAcademicRecord = () => {
     setFormData({
       ...formData,
-      academicRecords: [...formData.academicRecords, { exam: '', board: '', yearOfPass: '', totalMarks: '', marksObtained: '' }],
+      academicRecords: [
+        ...formData.academicRecords,
+        {
+          exam: "",
+          board: "",
+          yearOfPass: "",
+          totalMarks: "",
+          marksObtained: "",
+        },
+      ],
     });
   };
 
   const removeAcademicRecord = (index) => {
     if (formData.academicRecords.length > 1) {
-      const updatedRecords = formData.academicRecords.filter((_, i) => i !== index);
+      const updatedRecords = formData.academicRecords.filter(
+        (_, i) => i !== index
+      );
       setFormData({ ...formData, academicRecords: updatedRecords });
-      toast.success('Exam record removed');
+      toast.success("Exam record removed");
     } else {
-      toast.error('At least one exam record is required');
+      toast.error("At least one exam record is required");
     }
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
+    const FormDataToSend = new FormData();
+
+    for (let key in formData) {
+      if (key !== "academicRecords" && key !== "photograph" && key !== "signature" && key !== "aadharCard" && key !=="tenthCertificate" && key !== "twelfthCertificate" && key !== "casteCertificate" && key !== "incomeCertificate" && key !== "domicileCertificate" && key !== "disabilityCertificate") {
+        FormDataToSend.append(key, formData[key]);
+      }
+    }
+
+    FormDataToSend.append("academicRecords", JSON.stringify(formData.academicRecords));
+
+    FormDataToSend.append("photograph", formData.photograph);
+    FormDataToSend.append("signature", formData.signature);
+    FormDataToSend.append("aadharCard", formData.aadharCard);
+    FormDataToSend.append("tenthCertificate", formData.tenthCertificate);
+    FormDataToSend.append("twelfthCertificate", formData.twelfthCertificate);
+    FormDataToSend.append("casteCertificate", formData.casteCertificate);
+    FormDataToSend.append("incomeCertificate", formData.incomeCertificate);
+    FormDataToSend.append("domicileCertificate", formData.domicileCertificate);
+    FormDataToSend.append("disabilityCertificate", formData.disabilityCertificate);
+
     try {
-      // Simulating form submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log(formData);
-      toast.success('Application submitted successfully!');
+      const response = await apiClient.post(SUBMIT_FORM_ROUTE, FormDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      toast.success(response.data.message)
+      navigate('/')
+
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      console.error(error);
+      toast.error(error.response.data);
+      navigate('/')
     }
   };
 
   const fetchFromDigilocker = () => {
     // Implement Digilocker fetch logic
-    toast.info('Fetching from Digilocker...');
+    toast.info("Fetching from Digilocker...");
   };
 
-  const inputClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm bg-white shadow-sm";
-  const selectClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm bg-white shadow-sm";
+  const inputClassName =
+    "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm bg-white shadow-sm";
+  const selectClassName =
+    "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm bg-white shadow-sm";
 
   return (
     <div className="container mx-auto px-4 py-8 bg-gray-50">
-      <Toaster position="top-right" />
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Apply Now - PMSSS Scholarship</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Apply Now - PMSSS Scholarship
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Personal Details Section */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Personal Details</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            Personal Details
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name (As per Aadhar Card)</label>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name (As per Aadhar Card)
+              </label>
               <input
                 type="text"
                 id="name"
@@ -128,7 +251,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="fatherName" className="block text-sm font-medium text-gray-700">Father's Name</label>
+              <label
+                htmlFor="fatherName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Father's Name
+              </label>
               <input
                 type="text"
                 id="fatherName"
@@ -140,7 +268,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="motherName" className="block text-sm font-medium text-gray-700">Mother's Name</label>
+              <label
+                htmlFor="motherName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Mother's Name
+              </label>
               <input
                 type="text"
                 id="motherName"
@@ -152,7 +285,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="dob" className="block text-sm font-medium text-gray-700">Date of Birth</label>
+              <label
+                htmlFor="dob"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Date of Birth
+              </label>
               <input
                 type="date"
                 id="dob"
@@ -164,7 +302,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender</label>
+              <label
+                htmlFor="gender"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Gender
+              </label>
               <select
                 id="gender"
                 name="gender"
@@ -180,7 +323,12 @@ const ApplyNow = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Category
+              </label>
               <select
                 id="category"
                 name="category"
@@ -197,7 +345,12 @@ const ApplyNow = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email ID (Optional)</label>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email ID (Optional)
+              </label>
               <input
                 type="email"
                 id="email"
@@ -208,7 +361,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="familyIncome" className="block text-sm font-medium text-gray-700">Total Family Income (Annually)</label>
+              <label
+                htmlFor="familyIncome"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Total Family Income (Annually)
+              </label>
               <input
                 type="number"
                 id="familyIncome"
@@ -226,10 +384,17 @@ const ApplyNow = () => {
 
         {/* College Details Section */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">College Details</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            College Details
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="collegeName" className="block text-sm font-medium text-gray-700">Name of College</label>
+              <label
+                htmlFor="collegeName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name of College
+              </label>
               <input
                 type="text"
                 id="collegeName"
@@ -241,7 +406,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="collegeAddress" className="block text-sm font-medium text-gray-700">College Address</label>
+              <label
+                htmlFor="collegeAddress"
+                className="block text-sm font-medium text-gray-700"
+              >
+                College Address
+              </label>
               <textarea
                 id="collegeAddress"
                 name="collegeAddress"
@@ -252,7 +422,12 @@ const ApplyNow = () => {
               ></textarea>
             </div>
             <div className="space-y-2">
-              <label htmlFor="collegeEmail" className="block text-sm font-medium text-gray-700">Official College Email ID</label>
+              <label
+                htmlFor="collegeEmail"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Official College Email ID
+              </label>
               <input
                 type="email"
                 id="collegeEmail"
@@ -263,20 +438,14 @@ const ApplyNow = () => {
                 className={inputClassName}
               />
             </div>
+            
             <div className="space-y-2">
-              <label htmlFor="enrollmentNumber" className="block text-sm font-medium text-gray-700">Enrollment Number of Student</label>
-              <input
-                type="text"
-                id="enrollmentNumber"
-                name="enrollmentNumber"
-                value={formData.enrollmentNumber}
-                onChange={handleInputChange}
-                required
-                className={inputClassName}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="institutionCode" className="block text-sm font-medium text-gray-700">Institution Code</label>
+              <label
+                htmlFor="institutionCode"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Institution Code
+              </label>
               <input
                 type="text"
                 id="institutionCode"
@@ -288,60 +457,35 @@ const ApplyNow = () => {
               />
             </div>
           </div>
-          <h3 className="text-xl font-semibold mt-4 mb-2 text-gray-700">College Bank Details</h3>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2 text-gray-700">
+            Course Details
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="collegeBankName" className="block text-sm font-medium text-gray-700">College Bank Name</label>
+          <div className="space-y-2">
+              <label
+                htmlFor="enrollmentNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Enrollment Number of Student
+              </label>
               <input
                 type="text"
-                id="collegeBankName"
-                name="collegeBankName"
-                value={formData.collegeBankName}
+                id="enrollmentNumber"
+                name="enrollmentNumber"
+                value={formData.enrollmentNumber}
                 onChange={handleInputChange}
                 required
                 className={inputClassName}
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="collegeAccountNumber" className="block text-sm font-medium text-gray-700">Account Number</label>
-              <input
-                type="text"
-                id="collegeAccountNumber"
-                name="collegeAccountNumber"
-                value={formData.collegeAccountNumber}
-                onChange={handleInputChange}
-                required
-                className={inputClassName}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="collegeIFSC" className="block text-sm font-medium text-gray-700">IFSC Code</label>
-              <input
-                type="text"
-                id="collegeIFSC"
-                name="collegeIFSC"
-                value={formData.collegeIFSC}
-                onChange={handleInputChange}
-                required
-                className={inputClassName}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="collegeBankAddress" className="block text-sm font-medium text-gray-700">Bank Address</label>
-              <textarea
-                id="collegeBankAddress"
-                name="collegeBankAddress"
-                value={formData.collegeBankAddress}
-                onChange={handleInputChange}
-                required
-                className={inputClassName}
-              ></textarea>
-            </div>
-          </div>
-          <h3 className="text-xl font-semibold mt-4 mb-2 text-gray-700">Course Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="courseDuration" className="block text-sm font-medium text-gray-700">Duration of Course</label>
+              <label
+                htmlFor="courseDuration"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Duration of Course
+              </label>
               <input
                 type="text"
                 id="courseDuration"
@@ -353,7 +497,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="courseName" className="block text-sm font-medium text-gray-700">Course Name</label>
+              <label
+                htmlFor="courseName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Course Name
+              </label>
               <input
                 type="text"
                 id="courseName"
@@ -365,7 +514,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="feesPerYear" className="block text-sm font-medium text-gray-700">Fees per Year/Semester</label>
+              <label
+                htmlFor="feesPerYear"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Fees per Year/Semester
+              </label>
               <input
                 type="number"
                 id="feesPerYear"
@@ -377,7 +531,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="totalFees" className="block text-sm font-medium text-gray-700">Total Fees</label>
+              <label
+                htmlFor="totalFees"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Total Fees
+              </label>
               <input
                 type="number"
                 id="totalFees"
@@ -393,10 +552,17 @@ const ApplyNow = () => {
 
         {/* Academic Details Section */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Academic Details</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            Academic Details
+          </h2>
           {formData.academicRecords.map((record, index) => (
-            <div key={index} className="mb-4 p-4 border border-gray-200 rounded-md relative">
-              <h3 className="text-lg font-semibold mb-2 text-gray-600">Exam {index + 1}</h3>
+            <div
+              key={index}
+              className="mb-4 p-4 border border-gray-200 rounded-md relative"
+            >
+              <h3 className="text-lg font-semibold mb-2 text-gray-600">
+                Exam {index + 1}
+              </h3>
               <button
                 type="button"
                 onClick={() => removeAcademicRecord(index)}
@@ -407,56 +573,103 @@ const ApplyNow = () => {
               </button>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor={`exam-${index}`} className="block text-sm font-medium text-gray-700">Exam Passed</label>
+                  <label
+                    htmlFor={`exam-${index}`}
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Exam Passed
+                  </label>
                   <input
                     type="text"
                     id={`exam-${index}`}
                     value={record.exam}
-                    onChange={(e) => handleAcademicRecordChange(index, 'exam', e.target.value)}
+                    onChange={(e) =>
+                      handleAcademicRecordChange(index, "exam", e.target.value)
+                    }
                     required
                     className={inputClassName}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor={`board-${index}`} className="block text-sm font-medium text-gray-700">Educational Board/University</label>
+                  <label
+                    htmlFor={`board-${index}`}
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Educational Board/University
+                  </label>
                   <input
                     type="text"
                     id={`board-${index}`}
                     value={record.board}
-                    onChange={(e) => handleAcademicRecordChange(index, 'board', e.target.value)}
+                    onChange={(e) =>
+                      handleAcademicRecordChange(index, "board", e.target.value)
+                    }
                     required
                     className={inputClassName}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor={`yearOfPass-${index}`} className="block text-sm font-medium text-gray-700">Passing Year</label>
+                  <label
+                    htmlFor={`yearOfPass-${index}`}
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Passing Year
+                  </label>
                   <input
                     type="number"
                     id={`yearOfPass-${index}`}
                     value={record.yearOfPass}
-                    onChange={(e) => handleAcademicRecordChange(index, 'yearOfPass', e.target.value)}
+                    onChange={(e) =>
+                      handleAcademicRecordChange(
+                        index,
+                        "yearOfPass",
+                        e.target.value
+                      )
+                    }
                     required
                     className={inputClassName}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor={`totalMarks-${index}`} className="block text-sm font-medium text-gray-700">Total Marks</label>
+                  <label
+                    htmlFor={`totalMarks-${index}`}
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Total Marks
+                  </label>
                   <input
                     type="number"
                     id={`totalMarks-${index}`}
                     value={record.totalMarks}
-                    onChange={(e) => handleAcademicRecordChange(index, 'totalMarks', e.target.value)}
+                    onChange={(e) =>
+                      handleAcademicRecordChange(
+                        index,
+                        "totalMarks",
+                        e.target.value
+                      )
+                    }
                     required
                     className={inputClassName}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor={`marksObtained-${index}`} className="block text-sm font-medium text-gray-700">Marks Obtained</label>
+                  <label
+                    htmlFor={`marksObtained-${index}`}
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Marks Obtained
+                  </label>
                   <input
                     type="number"
                     id={`marksObtained-${index}`}
                     value={record.marksObtained}
-                    onChange={(e) => handleAcademicRecordChange(index, 'marksObtained', e.target.value)}
+                    onChange={(e) =>
+                      handleAcademicRecordChange(
+                        index,
+                        "marksObtained",
+                        e.target.value
+                      )
+                    }
                     required
                     className={inputClassName}
                   />
@@ -475,10 +688,17 @@ const ApplyNow = () => {
 
         {/* Address Details Section */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Address Details</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            Address Details
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
+              <label
+                htmlFor="address"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Address
+              </label>
               <textarea
                 id="address"
                 name="address"
@@ -489,7 +709,12 @@ const ApplyNow = () => {
               ></textarea>
             </div>
             <div className="space-y-2">
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
+              <label
+                htmlFor="city"
+                className="block text-sm font-medium text-gray-700"
+              >
+                City
+              </label>
               <input
                 type="text"
                 id="city"
@@ -501,7 +726,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
+              <label
+                htmlFor="state"
+                className="block text-sm font-medium text-gray-700"
+              >
+                State
+              </label>
               <input
                 type="text"
                 id="state"
@@ -513,7 +743,12 @@ const ApplyNow = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="pincode" className="block text-sm font-medium text-gray-700">Pincode</label>
+              <label
+                htmlFor="pincode"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Pincode
+              </label>
               <input
                 type="text"
                 id="pincode"
@@ -530,37 +765,69 @@ const ApplyNow = () => {
 
         {/* Documents Upload Section */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Documents to Upload</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            Documents to Upload
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              { name: 'photograph', label: 'Photograph' },
-              { name: 'signature', label: 'Signature' },
-              { name: 'aadharCard', label: 'Aadhar Card' },
-              { name: 'tenthCertificate', label: '10th Certificate' },
-              { name: 'twelfthCertificate', label: '12th Certificate/Diploma Certificate' },
-              { name: 'casteCertificate', label: 'Caste Category Certificate' },
-              { name: 'incomeCertificate', label: 'Family Income Certificate' },
-              { name: 'domicileCertificate', label: 'Domicile Certificate' },
-              { name: 'disabilityCertificate', label: 'Disability Certificate' },
+              { name: "photograph", label: "Photograph" },
+              { name: "signature", label: "Signature" },
+              { name: "aadharCard", label: "Aadhar Card" },
+              { name: "tenthCertificate", label: "10th Certificate" },
+              {
+                name: "twelfthCertificate",
+                label: "12th Certificate/Diploma Certificate",
+              },
+              { name: "casteCertificate", label: "Caste Category Certificate" },
+              { name: "incomeCertificate", label: "Family Income Certificate" },
+              { name: "domicileCertificate", label: "Domicile Certificate" },
+              {
+                name: "disabilityCertificate",
+                label: "Disability Certificate",
+              },
             ].map((doc) => (
-              <div key={doc.name} className="space-y-2">
-                <label htmlFor={doc.name} className="block text-sm font-medium text-gray-700">{doc.label}</label>
-                <input
-                  type="file"
-                  id={doc.name}
-                  name={doc.name}
-                  onChange={handleFileUpload}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="mt-1 block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700
-                    hover:file:bg-blue-100"
-                />
+              <div key={doc.name} className="">
+                <label
+                  htmlFor={doc.name}
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {doc.label}
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    id={doc.name}
+                    name={doc.name}
+                    onChange={handleFileUpload}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-full file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-50 file:text-blue-700
+                      hover:file:bg-blue-100"
+                  />
+                  {formData[doc.name] && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPreview({
+                          name: doc.label,
+                          url: URL.createObjectURL(formData[doc.name]),
+                        })
+                      }
+                      className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    >
+                      Preview
+                    </button>
+                  )}
+                </div>
                 {formData[doc.name] && (
-                  <p className="text-sm text-green-600">File uploaded successfully</p>
+                  <p className="text-sm text-green-600">
+                    File uploaded successfully
+                  </p>
                 )}
+                <DocumentPreview preview={preview} onClose={closePreview} />
               </div>
             ))}
           </div>

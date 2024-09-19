@@ -19,16 +19,23 @@ import 'react-toastify/dist/ReactToastify.css'
 import SignInForm from './components/SignInForm.jsx'
 import RegistrationForm from './components/RegistrationForm.jsx'
 import ManageDocuments from './components/ManageDocuments.jsx'
+import { apiClient } from './lib/api-client.js'
+import { Toaster } from 'react-hot-toast'
+import useAuthStore from './store/index.js'
+import { CHECKAUTH_ROUTE } from './utils/constants.js'
 
 export default function App() {
   const [fontSize, setFontSize] = useState('base')
   const [canUpdateApplication, setCanUpdateApplication] = useState(false)
+  const {isLoggedIn, setIsLoggedIn} = useAuthStore()
 
   useEffect(() => {
+    
+    
     setTimeout(() => {
       setCanUpdateApplication(true)
     }, 10000)
-  }, [])
+  }, [isLoggedIn])
 
   const changeFontSize = (size) => {
     setFontSize(size)
@@ -39,9 +46,12 @@ export default function App() {
     }[size]
   }
 
+  
+
   return (
     <Router>
       <div className={`flex flex-col min-h-screen bg-gray-100 text-${fontSize}`}>
+        <Toaster position="top-right" />
         <Header changeFontSize={changeFontSize} />
         <Navbar canUpdateApplication={canUpdateApplication} />
         <main className="flex-grow">

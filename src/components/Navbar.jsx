@@ -1,11 +1,48 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+
+import { Link, useNavigate } from 'react-router-dom'
+import Cookies from 'js-cookie'
 import Logo from '../assets/logo.png'
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { apiClient } from '../lib/api-client';
+import { CHECKAUTH_ROUTE, LOGOUT_ROUTE } from '../utils/constants';
+import useAuthStore from '../store';
+import toast from 'react-hot-toast';
 
 export default function Navbar({ canUpdateApplication }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const {isLoggedIn, setIsLoggedIn} = useAuthStore()
 
+  const checkLogin = async() =>{
+     try {
+      const response = await apiClient.get(CHECKAUTH_ROUTE,{withCredentials: true}) 
+      if(response.status === 200){
+        setIsLoggedIn(true)
+      }else{
+        setIsLoggedIn(false)
+      }
+     } catch (error) {
+      toast.error('You are not logged in')
+     }
+  }
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    checkLogin()
+  }, [])
+  
+  const handleLogout = async() =>{
+
+    try {
+      await apiClient.post(LOGOUT_ROUTE,{},{withCredentials:true})
+  
+      setIsLoggedIn(false)
+      navigate('/')
+      toast.success("Logged out");
+      
+    } catch (error) {
+      toast.error("error occured while logging out");
+    }
+  }
   return (
     <nav className="bg-white shadow border-b border-gray-300">
       <div className="container mx-auto px-4">
@@ -28,8 +65,8 @@ export default function Navbar({ canUpdateApplication }) {
             {canUpdateApplication && (
               <Link to="/update-application" className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Update Application</Link>
             )}
-            <Link to="/sign-in" className="text-gray-600 hover:text-blue-700">Sign In</Link>
-            <Link to="/sign-up" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign Up</Link>
+            {!isLoggedIn ? <Link to="/sign-in" className="text-gray-600 hover:text-blue-700">Sign In</Link> : <button onClick={handleLogout} className="bg-red-600  px-4 py-2 rounded text-white">Log out</button> }
+            {!isLoggedIn && <Link to="/sign-up" className="bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded">Sign Up</Link>}
           </div>
 
           {/* Mobile Menu Button (Visible on screens < 1200px) */}
@@ -58,8 +95,8 @@ export default function Navbar({ canUpdateApplication }) {
             {canUpdateApplication && (
               <Link to="/update-application" className="block bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 text-center">Update Application</Link>
             )}
-            <Link to="/sign-in" className="block text-gray-600 hover:text-blue-700">Sign In</Link>
-            <Link to="/sign-up" className="block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-center">Sign Up</Link>
+            {!isLoggedIn ? <Link to="/sign-in" className="block text-gray-600 hover:text-blue-700">Sign In</Link> : <button onClick={handleLogout} className="bg-red-600  px-4 py-2 rounded text-white">Log out</button> }
+            {!isLoggedIn && <Link to="/sign-up" className="block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-center">Sign Up</Link>}
           </div>
         </div>
       )}
