@@ -28,7 +28,7 @@ const RegistrationForm = () => {
       navigate('/');
     } catch (error) {
       console.error('Signup failed', error);
-      toast.error(error)
+      toast.error(error.response.data)
     }
   } 
 
