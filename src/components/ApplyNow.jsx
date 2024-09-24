@@ -768,6 +768,7 @@ const navigate = useNavigate()
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">
             Documents to Upload
           </h2>
+          <p className="mb-3 text-blue-700">All files should be image file</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { name: "photograph", label: "Photograph" },

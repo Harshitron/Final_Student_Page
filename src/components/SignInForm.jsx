@@ -101,6 +101,8 @@ const SignInForm = () => {
                   required
                 />
                 <small className="text-gray-500">Enter your 6 digit security PIN</small>
+                <p className=" cursor-pointer  mb-4">Demo Password:  123456</p>
+
               </div>
               <p className="text-blue-500 cursor-pointer hover:underline text-sm mb-4">Forgot security PIN?</p>
 

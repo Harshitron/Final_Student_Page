@@ -15,7 +15,7 @@ export default function Navbar({ canUpdateApplication }) {
   const checkLogin = async() =>{
      try {
       const response = await apiClient.get(CHECKAUTH_ROUTE,{withCredentials: true}) 
-      if(response.status === 200){
+      if(response.data === "Logged IN"){
         setIsLoggedIn(true)
       }else{
         setIsLoggedIn(false)
