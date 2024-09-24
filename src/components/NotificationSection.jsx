@@ -6,10 +6,10 @@ export default function NotificationSection() {
   const [activeTab, setActiveTab] = useState('general')
 
   const generalNotifications = [
-    'Application deadline extended to January 15, 2024',
-    'New courses added to the eligible list',
-    'Scholarship amount increased for the academic year 2024-25',
-    'Webinar on application process scheduled for next week',
+    'Application deadline extended to January 15, 2024.',
+    'New courses added to the eligible list.',
+    'Scholarship amount announced for the academic year 2024-25.',
+    'Webinar on application process scheduled for next week.',
   ]
 
   const applicationNotifications = [
